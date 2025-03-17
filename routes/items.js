@@ -129,7 +129,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // CREATE item with images (requires authentication)
-router.post('/', auth, upload.array('images', 5), asyncHandler(async (req, res) => {
+router.post('/create', auth, upload.array('images', 5), asyncHandler(async (req, res) => {
   const {
     title,
     description,

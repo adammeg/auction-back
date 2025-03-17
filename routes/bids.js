@@ -48,7 +48,7 @@ router.get('/my-bids', auth, asyncHandler(async (req, res) => {
 }));
 
 // Place a bid
-router.post('/', auth, asyncHandler(async (req, res) => {
+router.post('/place-bid', auth, asyncHandler(async (req, res) => {
   const { itemId, amount } = req.body;
   
   // Validate input

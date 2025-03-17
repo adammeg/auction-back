@@ -225,49 +225,72 @@ router.delete('/:id', auth, async (req, res) => {
 router.get('/dashboard-stats', auth, async (req, res) => {
   try {
     const userId = req.user.userId;
-    console.log('User ID:', userId);
+    console.log('Dashboard stats requested for userId:', userId);
     
-    // Perform simple, independent queries to reduce complexity
+    // Add individual try/catch blocks for each database operation
+    try {
+      console.log('Fetching active bids count...');
+      const activeBidsCount = await Bid.countDocuments({
+        bidder: userId
+      });
+      console.log('Active bids count:', activeBidsCount);
+      
+      console.log('Fetching active listings count...');
+      const activeListingsCount = await Item.countDocuments({ 
+        seller: userId,
+        status: 'active'
+      });
+      console.log('Active listings count:', activeListingsCount);
+      
+      console.log('Fetching won auctions count...');
+      const wonAuctionsCount = await Item.countDocuments({
+        highestBidder: userId,
+        status: 'ended'
+      });
+      console.log('Won auctions count:', wonAuctionsCount);
+      
+      console.log('Fetching total listings count...');
+      const totalListingsCount = await Item.countDocuments({
+        seller: userId
+      });
+      console.log('Total listings count:', totalListingsCount);
+      
+      // Return successful response
+      console.log('Returning dashboard stats successfully');
+      return res.json({
+        activeBids: activeBidsCount,
+        activeListings: activeListingsCount,
+        wonAuctions: wonAuctionsCount,
+        totalListings: totalListingsCount,
+        endingSoon: [] // Simplified to avoid complexity
+      });
+      
+    } catch (dbError) {
+      // Log database-specific errors
+      console.error('Database operation failed:', dbError);
+      console.error('Error stack:', dbError.stack);
+      
+      // Still return a 200 response with empty data
+      return res.status(200).json({
+        success: false,
+        message: 'Error fetching dashboard stats: ' + dbError.message,
+        error: process.env.NODE_ENV === 'development' ? dbError.stack : undefined,
+        activeBids: 0,
+        activeListings: 0,
+        wonAuctions: 0,
+        totalListings: 0,
+        endingSoon: []
+      });
+    }
     
-    // Get active bids count - simplified query
-    const activeBidsCount = await Bid.countDocuments({
-      bidder: userId
-    });
-    
-    // Get active listings count
-    const activeListingsCount = await Item.countDocuments({ 
-      seller: userId,
-      status: 'active'
-    });
-    
-    // Get won auctions count
-    const wonAuctionsCount = await Item.countDocuments({
-      highestBidder: userId,
-      status: 'ended'
-    });
-    
-    // Get total listings count
-    const totalListingsCount = await Item.countDocuments({
-      seller: userId
-    });
-    
-    // Skip the complex query for ending soon items that might be causing issues
-    
-    res.json({
-      activeBids: activeBidsCount,
-      activeListings: activeListingsCount,
-      wonAuctions: wonAuctionsCount,
-      totalListings: totalListingsCount,
-      // Return an empty array for endingSoon to avoid errors
-      endingSoon: []
-    });
   } catch (err) {
-    console.error('Error fetching dashboard stats:', err);
+    console.error('Unexpected error in dashboard stats:', err);
+    console.error('Error stack:', err.stack);
+    
     // Return a 200 response with empty data instead of 500 error
-    // This makes the frontend more resilient
     res.status(200).json({
       success: false,
-      message: 'Error fetching dashboard stats',
+      message: 'Error fetching dashboard stats: ' + err.message,
       activeBids: 0,
       activeListings: 0,
       wonAuctions: 0,

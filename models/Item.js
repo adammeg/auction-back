@@ -9,71 +9,83 @@ const ItemSchema = new Schema({
   },
   description: {
     type: String,
-    trim: true
+    required: true
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'Category',
+    required: true
   },
   itemCondition: {
     type: String,
-    enum: ['New', 'Like New', 'Good', 'Fair', 'Poor'],
+    enum: ['new', 'likeNew', 'excellent', 'veryGood', 'good', 'fair', 'poor', 'forParts'],
     required: true
   },
-  images: [{
-    type: String
-  }],
+  images: {
+    type: [String],
+    default: []
+  },
   startBid: {
     type: Number,
     required: true,
     min: 0
   },
-  reservePrice: {
+  currentBid: {
     type: Number,
-    min: 0
+    default: 0
   },
   minBid: {
     type: Number,
     required: true,
-    min: 0
+    min: 1
   },
-  auctionDuration: {
+  reservePrice: {
     type: Number,
-    required: true,
-    min: 1 // Duration in days
-  },
-  startDate: {
-    type: Date,
-    default: Date.now
-  },
-  endDate: {
-    type: Date,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['active', 'ended', 'cancelled'],
-    default: 'active'
+    default: 0
   },
   seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
+  highestBidder: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  endDate: {
+    type: Date,
+  },
+  auctionDuration: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  status: {
+    type: String,
+    enum: ['draft', 'active', 'ended', 'cancelled'],
+    default: 'active'
+  },
   featured: {
     type: Boolean,
     default: false
   },
+  shippingOptions: {
+    domestic: {
+      type: Boolean,
+      default: false
+    },
+    international: {
+      type: Boolean,
+      default: false
+    },
+    pickup: {
+      type: Boolean,
+      default: false
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  highestBidder: {
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  currentBid: {
-    type: Number
   },
   minIncrement: {
     type: Number,
@@ -90,4 +102,5 @@ ItemSchema.pre('save', function(next) {
   next();
 });
 
+module.exports = mongoose.model('Item', ItemSchema); 
 module.exports = mongoose.model('Item', ItemSchema); 

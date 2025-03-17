@@ -43,9 +43,9 @@ app.use(cors());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/items', itemsRouter);
-app.use('/api/categories', categoriesRouter);
-app.use('/api/bids', bidsRouter);
-app.use('/api/uploads', uploadsRouter);
+app.use('/categories', categoriesRouter);
+app.use('/bids', bidsRouter);
+app.use('/uploads', uploadsRouter);
 
 // Multer error handling
 app.use((err, req, res, next) => {
